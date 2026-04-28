@@ -1,4 +1,4 @@
-#lang forge
+#lang forge/temporal
 
 sig Floor {}
 abstract sig Room { floor: one Floor }
@@ -35,17 +35,31 @@ one sig Stairs, Elevator extends TransportKind {}
 
 one sig Person { 
     level: one AccessLevel,
-    loc: one Room
+    var loc: one Room
 }
 
 // Assuming hallways are part of each respective lobby
-one sig Lobby_F1, Lobby_F2, Lobby_F3, Lobby_F4, Lobby_F5 extends Room {} 
+one sig Sciences_Park, Lobby_F1, Lobby_F2, Lobby_F3, Lobby_F4, Lobby_F5 extends Room {} 
 
 one sig Room101 extends Room {}
 
 // To simplify, we're assuming it's always possible to go from higher to lower floors at any time
 
 pred buildMap {
+    // Door from Sciences Park to Lobby
+    // Access rule:
+        // Open during business hours to students and above
+        // Always open to TAs and above
+    some D: Door | {
+        D.from = Sciences_Park
+        D.to = Lobby_F1
+
+        D.accessible[BusinessHours] = Student
+        D.accessible[OffHoursWeekday] = TA
+        D.accessible[OffHoursWeekend] = TA
+    }
+
+
     // Door from Lobby to Room 101
     // Access rule: 
         // Open during business hours to students and above

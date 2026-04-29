@@ -1,6 +1,7 @@
 #lang forge/temporal
 open "cit_data.frg"
 
+option run_sterling "layout.cnd"
 option run_sterling "vis.js"
 
 pred staysInRoomForever[r: Room] {

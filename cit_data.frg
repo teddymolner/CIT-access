@@ -11,10 +11,13 @@ one sig BusinessHours, OffHoursWeekday, OffHoursWeekend extends AccessTime {}
 
 one sig EquivClasses {
     security: set Room,
-    profAndHigher: set Room
-
-
+    profAndHigher: set Room,
+    TAandHigher: set Room,
+    studentAndHigher: set Room,
+    publicAndHigher: set Room
 }
+
+
 
 // to -> from is always accessible by override (e.g. emergency exit)
 sig Door { 
@@ -159,3 +162,10 @@ pred buildMap {
         T.accessible[OffHoursWeekend] = TA
     }
 }
+
+
+// TODO list
+// testing (async)
+// get the visualizer to look good
+// scale to more rooms (async)
+// define equivalence classes

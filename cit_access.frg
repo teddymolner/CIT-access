@@ -86,7 +86,7 @@ pred reachableWithAccessLevel[start, end: Room, t: AccessTime, l: AccessLevel] {
   end in start.*(edges[t, l])
 }
 
-pred validEquivClasses[t: AccessTime] {
+pred validEquivClasses[start: Room, t: AccessTime] {
     buildMap
     // TODO test case: public should just be sciences park
     // All rooms are in exactly one equivalence class
@@ -101,62 +101,79 @@ pred validEquivClasses[t: AccessTime] {
     all r: Room | {
         r in EquivClasses.security => {
             // r is reachable from sciencespark at time t with accesslevel security
-            reachableWithAccessLevel[Sciences_Park, r, t, Security]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Public]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, TA]
+            reachableWithAccessLevel[start, r, t, Security]
+            and not reachableWithAccessLevel[start, r, t, Prof]
+            and not reachableWithAccessLevel[start, r, t, Student]
+            and not reachableWithAccessLevel[start, r, t, Public]
+            and not reachableWithAccessLevel[start, r, t, TA]
             // r is not reachable from sciencespark at time t with any access level below security
         }
 
         r in EquivClasses.profAndHigher => {
             // r reachable from sciences park at time t with accesslevel prof
             // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Security]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Public]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, TA]
+            reachableWithAccessLevel[start, r, t, Prof]
+            and reachableWithAccessLevel[start, r, t, Security]
+            and not reachableWithAccessLevel[start, r, t, Student]
+            and not reachableWithAccessLevel[start, r, t, Public]
+            and not reachableWithAccessLevel[start, r, t, TA]
         }
 
         r in EquivClasses.TAandHigher => {
             // r reachable from sciences park at time t with accesslevel TA
             // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[Sciences_Park, r, t, TA]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Security]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Public]
+            reachableWithAccessLevel[start, r, t, TA]
+            and reachableWithAccessLevel[start, r, t, Prof]
+            and reachableWithAccessLevel[start, r, t, Security]
+            and not reachableWithAccessLevel[start, r, t, Student]
+            and not reachableWithAccessLevel[start, r, t, Public]
             
         }
         
         r in EquivClasses.studentAndHigher => {
             // r reachable from sciences park at time t with accesslevel student
             // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            and reachableWithAccessLevel[Sciences_Park, r, t, TA]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Security]
-            and not reachableWithAccessLevel[Sciences_Park, r, t, Public]
+            reachableWithAccessLevel[start, r, t, Student]
+            and reachableWithAccessLevel[start, r, t, TA]
+            and reachableWithAccessLevel[start, r, t, Prof]
+            and reachableWithAccessLevel[start, r, t, Security]
+            and not reachableWithAccessLevel[start, r, t, Public]
         }
 
         r in EquivClasses.publicAndHigher <=> {
             // r reachable from sciences park at time t with accesslevel public
             // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[Sciences_Park, r, t, Public]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            and reachableWithAccessLevel[Sciences_Park, r, t, TA]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            and reachableWithAccessLevel[Sciences_Park, r, t, Security]
+            reachableWithAccessLevel[start, r, t, Public]
+            and reachableWithAccessLevel[start, r, t, Student]
+            and reachableWithAccessLevel[start, r, t, TA]
+            and reachableWithAccessLevel[start, r, t, Prof]
+            and reachableWithAccessLevel[start, r, t, Security]
         }
     }
     //In each equivalence class, all rooms cannot be accessed by a lower level
 }
 
+
+// traces to see steps of where a student can go
 // run {
 //     traces[Sciences_Park, Lobby_F2, BusinessHours, Student]
 // } for exactly 8 Door, 7 Room, 5 Int
 
+// equivalence classes from sciences_park on business hours
 run {
-    validEquivClasses[BusinessHours]
+    validEquivClasses[Sciences_Park, BusinessHours]
 } for exactly 8 Door, 7 Room, 5 Int
+
+
+// equivalence classes from sciences_park on weekday off hours
+run {
+    validEquivClasses[Sciences_Park, OffHoursWeekday]
+} for exactly 8 Door, 7 Room, 5 Int
+
+// Workflow:
+/**
+- Use validEquivClasses to see equivalence classes from a start room at varying hours
+- If this reveals information about access that we want to investigate more, write a custom traces statement to show how...
+- an access level can get from a room to another room through discrete steps
+- This allows informed decisions about security to be made
+**/

@@ -48,13 +48,13 @@ test suite for canTraverse {
             Person.loc = d.to
             canTraverse[d, t]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- canTraverse is not trivially always true
     traversalAlwaysTrue: assert {
         buildMap
         all d: Door, t: AccessTime | canTraverse[d, t]
-    } is unsat for exactly 8 Door, 7 Room, 5 Int
+    } is unsat for exactly 39 Door, 31 Room, 5 Int
 
     -- A Security-level person can traverse any door at any time when at door.from
     securityCanTraverseAll: assert {
@@ -64,7 +64,7 @@ test suite for canTraverse {
             Person.loc = d.from
             canTraverse[d, t]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 }
 
 -- ============================================================
@@ -78,7 +78,7 @@ test suite for step {
         some r, r1: Room, t: AccessTime | step[r, r1, t]
         =>
         (some d: Door | (d.from = Person.loc and d.to != Person.loc))
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Person cannot step to a room with no door connecting them
     stepImpossibleWithNoDoor: assert {
@@ -87,7 +87,7 @@ test suite for step {
             no d: Door | d.from = r and d.to = r1
             step[r, r1, t]
         }
-    } is unsat for exactly 8 Door, 7 Room, 5 Int
+    } is unsat for exactly 39 Door, 31 Room, 5 Int
 
     -- After step, person's location is the destination room
     stepChangesLocation: assert {
@@ -96,7 +96,7 @@ test suite for step {
             step[r, r1, t]
             Person.loc' = r1
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- A student can step through a Student-access door during business hours
     studentStepDuringBusinessHours: assert {
@@ -107,7 +107,7 @@ test suite for step {
             Person.loc = d.from
             step[d.from, d.to, BusinessHours]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- A Public-level person cannot step through a Student door during business hours
     publicCannotStepStudentDoor: assert {
@@ -118,7 +118,7 @@ test suite for step {
             Person.loc = d.from
             step[d.from, d.to, BusinessHours]
         }
-    } is unsat for exactly 8 Door, 7 Room, 5 Int
+    } is unsat for exactly 39 Door, 31 Room, 5 Int
 }
 
 -- ============================================================
@@ -162,14 +162,14 @@ test suite for traces {
         some r: Room | {
             not traces[Sciences_Park, r, BusinessHours, Public]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- traces establishes buildMap and access level constraints
     tracesSetsBuildMap: assert {
         traces[Sciences_Park, Lobby_F1, BusinessHours, Student]
         =>
         buildMap
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Person stays in end room forever (staysInRoomForever) is an allowable trajectory
     tracesCanTerminate: assert {
@@ -177,14 +177,14 @@ test suite for traces {
             traces[Sciences_Park, r, BusinessHours, Security]
             staysInRoomForever[r]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- A Student cannot trace to a room requiring TA access during off-hours
     studentCannotReachTARoomOffHours: assert {
         some r: Room | {
             not traces[Sciences_Park, r, OffHoursWeekday, Student]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 }
 
 -- ============================================================
@@ -196,7 +196,7 @@ test suite for canUseDoor {
     securityUsesAnyDoor: assert {
         buildMap
         all d: Door, t: AccessTime | canUseDoor[d, t, Security]
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Public cannot use a Student-minimum door
     publicCannotUseStudentDoor: assert {
@@ -205,7 +205,7 @@ test suite for canUseDoor {
             d.accessible[t] = Student
             not canUseDoor[d, t, Public]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- TA can use a TA-minimum door
     taCanUseTADoor: assert {
@@ -214,7 +214,7 @@ test suite for canUseDoor {
             d.accessible[t] = TA
             canUseDoor[d, t, TA]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 }
 
 -- ============================================================
@@ -228,7 +228,7 @@ test suite for edges {
         some d: Door, t: AccessTime | {
             d.from -> d.to in edges[t, Security]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Reverse direction (d.to -> d.from) is always in edges regardless of level
     edgesAlwaysIncludesReverseDirection: assert {
@@ -236,7 +236,7 @@ test suite for edges {
         some d: Door, t: AccessTime | {
             d.to -> d.from in edges[t, Public]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- A Public person cannot traverse a door requiring Student via forward direction
     edgesExcludesInsufficientLevel: assert {
@@ -245,7 +245,7 @@ test suite for edges {
             d.accessible[t] = Student
             d.from -> d.to not in edges[t, Public]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 }
 -- ============================================================
 -- reachableWithAccessLevel
@@ -259,7 +259,7 @@ test suite for reachableWithAccessLevel {
             reachableWithAccessLevel[Sciences_Park, r, t, Prof]
             => reachableWithAccessLevel[Sciences_Park, r, t, Security]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Public can reach all rooms reachable by... Public only (subset check)
     publicSubsetOfStudent: assert {
@@ -268,7 +268,7 @@ test suite for reachableWithAccessLevel {
             reachableWithAccessLevel[Sciences_Park, r, t, Student]
             => reachableWithAccessLevel[Sciences_Park, r, t, TA]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 
     -- Sciences_Park is always reachable from itself at any level (reflexive)
     selfReachable: assert {
@@ -276,5 +276,5 @@ test suite for reachableWithAccessLevel {
         all t: AccessTime, l: AccessLevel | {
             reachableWithAccessLevel[Sciences_Park, Sciences_Park, t, l]
         }
-    } is sat for exactly 8 Door, 7 Room, 5 Int
+    } is sat for exactly 39 Door, 31 Room, 5 Int
 }

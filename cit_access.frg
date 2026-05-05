@@ -98,7 +98,7 @@ pred validEquivClasses[start: Room, t: AccessTime] {
         (r in EquivClasses.publicAndHigher and r not in (EquivClasses.security + EquivClasses.profAndHigher + EquivClasses.TAandHigher + EquivClasses.studentAndHigher))
     }
    // all rooms are accessible at the level it says it will be at
-    all r: Room | {
+    /*all r: Room | {
         r in EquivClasses.security => {
             // r is reachable from sciencespark at time t with accesslevel security
             reachableWithAccessLevel[start, r, t, Security]
@@ -149,6 +149,31 @@ pred validEquivClasses[start: Room, t: AccessTime] {
             and reachableWithAccessLevel[start, r, t, Prof]
             and reachableWithAccessLevel[start, r, t, Security]
         }
+    }*/
+    all r: Room | {
+        r in EquivClasses.security <=> {
+            reachableWithAccessLevel[Sciences_Park, r, t, Security]
+            not reachableWithAccessLevel[Sciences_Park, r, t, Prof]
+        }
+
+        r in EquivClasses.profAndHigher <=> {
+            reachableWithAccessLevel[Sciences_Park, r, t, Prof]
+            not reachableWithAccessLevel[Sciences_Park, r, t, TA]
+        }
+
+        r in EquivClasses.TAandHigher <=> {
+            reachableWithAccessLevel[Sciences_Park, r, t, TA]
+            not reachableWithAccessLevel[Sciences_Park, r, t, Student]
+        }
+
+        r in EquivClasses.studentAndHigher <=> {
+            reachableWithAccessLevel[Sciences_Park, r, t, Student]
+            not reachableWithAccessLevel[Sciences_Park, r, t, Public]
+        }
+
+        r in EquivClasses.publicAndHigher <=> {
+            reachableWithAccessLevel[Sciences_Park, r, t, Public]
+        }
     }
     //In each equivalence class, all rooms cannot be accessed by a lower level
 }
@@ -162,13 +187,13 @@ pred validEquivClasses[start: Room, t: AccessTime] {
 // equivalence classes from sciences_park on business hours
 run {
     validEquivClasses[Sciences_Park, BusinessHours]
-} for exactly 8 Door, 7 Room, 5 Int
+} for exactly 39 Door, 31 Room, 5 Int
 
 
 // equivalence classes from sciences_park on weekday off hours
 run {
     validEquivClasses[Sciences_Park, OffHoursWeekday]
-} for exactly 8 Door, 7 Room, 5 Int
+} for exactly 39 Door, 31 Room, 5 Int
 
 // Workflow:
 /**

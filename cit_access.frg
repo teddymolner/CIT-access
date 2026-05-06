@@ -9,7 +9,6 @@ pred staysInRoomForever[r: Room] {
 }
 
 // Returns true iff l is at least min
-// 
 pred atLeast[l: AccessLevel, min: AccessLevel] {
   min = Public
   or l = min
@@ -22,30 +21,23 @@ pred atLeast[l: AccessLevel, min: AccessLevel] {
 pred canTraverse[d: Door, t: AccessTime] {
     (Person.loc = d.from and atLeast[Person.level, d.accessible[t]])
     or
-    Person.loc = d.to
+    Person.loc = d.to // For simplicity, we assume all doors are always open in the "backwards direction", 
+    // e.g., leaving the CIT lobby as opposed to entering it does not require an ID swipe
 }
 
 pred step[r: Room, r1: Room, t: AccessTime] {
-    // t = t'
-
-    // d = Door between r and r1
-    // Person must be at r
-    // Person' must be at r1
-    // canTraverse(d, t)
-    
     Person.loc = r
-    // TODO check whether door fields remain constant
+
     some d : Door | {
         d.from = r
         d.to = r1
         canTraverse[d, t]
     }
-
     Person.loc' = r1
 }
 
 pred reachable[start: Room, end: Room, t: AccessTime] {
-    Person.loc = start // TODO verify this
+    Person.loc = start 
     eventually(Person.loc = end)
 }
 
@@ -66,8 +58,7 @@ pred canUseDoor[d: Door, t: AccessTime, l: AccessLevel] {
 }
 
 // Builds a relation r where r1 -> r2 is in r if and only if you
-// can get from r1 to r2 (with one door) at the given accesslevel and accesstime
-
+// can get from r1 to r2 (with one door) at the given AccessLevel and AccessTime
 fun edges[t: AccessTime, l: AccessLevel]: Room -> Room {
   { r1, r2: Room |
     some d: Door | {
@@ -88,8 +79,8 @@ pred reachableWithAccessLevel[start, end: Room, t: AccessTime, l: AccessLevel] {
 
 pred validEquivClasses[start: Room, t: AccessTime] {
     buildMap
-    // TODO test case: public should just be sciences park
-    // All rooms are in exactly one equivalence class
+    
+    // Disjointness and completeness: all rooms are in exactly one equivalence class
     all r: Room | {
         (r in EquivClasses.security and r not in (EquivClasses.profAndHigher + EquivClasses.TAandHigher + EquivClasses.studentAndHigher + EquivClasses.publicAndHigher)) or
         (r in EquivClasses.profAndHigher and r not in (EquivClasses.security + EquivClasses.TAandHigher + EquivClasses.studentAndHigher + EquivClasses.publicAndHigher)) or
@@ -97,59 +88,8 @@ pred validEquivClasses[start: Room, t: AccessTime] {
         (r in EquivClasses.studentAndHigher and r not in (EquivClasses.profAndHigher + EquivClasses.TAandHigher + EquivClasses.security + EquivClasses.publicAndHigher)) or
         (r in EquivClasses.publicAndHigher and r not in (EquivClasses.security + EquivClasses.profAndHigher + EquivClasses.TAandHigher + EquivClasses.studentAndHigher))
     }
-   // all rooms are accessible at the level it says it will be at
-    /*all r: Room | {
-        r in EquivClasses.security => {
-            // r is reachable from sciencespark at time t with accesslevel security
-            reachableWithAccessLevel[start, r, t, Security]
-            and not reachableWithAccessLevel[start, r, t, Prof]
-            and not reachableWithAccessLevel[start, r, t, Student]
-            and not reachableWithAccessLevel[start, r, t, Public]
-            and not reachableWithAccessLevel[start, r, t, TA]
-            // r is not reachable from sciencespark at time t with any access level below security
-        }
 
-        r in EquivClasses.profAndHigher => {
-            // r reachable from sciences park at time t with accesslevel prof
-            // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[start, r, t, Prof]
-            and reachableWithAccessLevel[start, r, t, Security]
-            and not reachableWithAccessLevel[start, r, t, Student]
-            and not reachableWithAccessLevel[start, r, t, Public]
-            and not reachableWithAccessLevel[start, r, t, TA]
-        }
-
-        r in EquivClasses.TAandHigher => {
-            // r reachable from sciences park at time t with accesslevel TA
-            // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[start, r, t, TA]
-            and reachableWithAccessLevel[start, r, t, Prof]
-            and reachableWithAccessLevel[start, r, t, Security]
-            and not reachableWithAccessLevel[start, r, t, Student]
-            and not reachableWithAccessLevel[start, r, t, Public]
-            
-        }
-        
-        r in EquivClasses.studentAndHigher => {
-            // r reachable from sciences park at time t with accesslevel student
-            // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[start, r, t, Student]
-            and reachableWithAccessLevel[start, r, t, TA]
-            and reachableWithAccessLevel[start, r, t, Prof]
-            and reachableWithAccessLevel[start, r, t, Security]
-            and not reachableWithAccessLevel[start, r, t, Public]
-        }
-
-        r in EquivClasses.publicAndHigher <=> {
-            // r reachable from sciences park at time t with accesslevel public
-            // note: do not need to check for lower levels b/c there are no lower levels
-            reachableWithAccessLevel[start, r, t, Public]
-            and reachableWithAccessLevel[start, r, t, Student]
-            and reachableWithAccessLevel[start, r, t, TA]
-            and reachableWithAccessLevel[start, r, t, Prof]
-            and reachableWithAccessLevel[start, r, t, Security]
-        }
-    }*/
+    // All rooms are in the appropriate equivalence class
     all r: Room | {
         r in EquivClasses.security <=> {
             reachableWithAccessLevel[start, r, t, Security]
@@ -180,9 +120,9 @@ pred validEquivClasses[start: Room, t: AccessTime] {
 
 
 // traces to see steps of where a student can go
-run {
-    traces[Sciences_Park, Room477, BusinessHours, Student]
-} for exactly 41 Door, 31 Room, 5 Int
+// run {
+//     traces[Sciences_Park, Room477, BusinessHours, Student]
+// } for exactly 41 Door, 31 Room, 5 Int
 
 // equivalence classes from sciences_park on business hours
 // run {
@@ -201,21 +141,11 @@ run {
 // } for exactly 41 Door, 31 Room, 5 Int // < 1 min
 
 // following workflow: traces to show how a member of public could get to room 
-// run {
-//     traces[Lobby_F1, Room271, OffHoursWeekday, Public]
-// } for exactly 41 Door, 31 Room, 5 Int
+run {
+    traces[Lobby_F3, Room510, OffHoursWeekday, Public]
+} for exactly 41 Door, 31 Room, 5 Int
 
 // equivalence classes from 3rd floor lobby on weekday off hours
-/*run {
+run {
     validEquivClasses[Lobby_F3, OffHoursWeekday]
-} for exactly 41 Door, 31 Room, 5 Int*/
-
-// Workflow:
-/**
-- Use validEquivClasses to see equivalence classes from a start room at varying hours
-- If this reveals information about access that we want to investigate more, write a custom traces statement to show how...
-- an access level can get from a room to another room through discrete steps
-- This allows informed decisions about security to be made
-// runs in 30-40 seconds
-// tests take a little over a minute to pass
-**/
+} for exactly 41 Door, 31 Room, 5 Int

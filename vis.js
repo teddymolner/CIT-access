@@ -5,7 +5,7 @@ d3.selectAll("svg > *").remove();
 let current_state = 0;
 let zoomScale = 0.5;
 
-const RUN_TIME_LABEL = "BusinessHours";
+const RUN_TIME_LABEL = "";
 
 const WIDTH = 1600;
 const HEIGHT = 950;

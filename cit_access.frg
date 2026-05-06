@@ -180,9 +180,9 @@ pred validEquivClasses[start: Room, t: AccessTime] {
 
 
 // traces to see steps of where a student can go
-// run {
-//     traces[Sciences_Park, Lobby_F2, BusinessHours, Student]
-// } for exactly 8 Door, 7 Room, 5 Int
+run {
+    traces[Sciences_Park, Room477, BusinessHours, Student]
+} for exactly 41 Door, 31 Room, 5 Int
 
 // equivalence classes from sciences_park on business hours
 // run {
@@ -206,9 +206,9 @@ pred validEquivClasses[start: Room, t: AccessTime] {
 // } for exactly 41 Door, 31 Room, 5 Int
 
 // equivalence classes from 3rd floor lobby on weekday off hours
-run {
+/*run {
     validEquivClasses[Lobby_F3, OffHoursWeekday]
-} for exactly 41 Door, 31 Room, 5 Int
+} for exactly 41 Door, 31 Room, 5 Int*/
 
 // Workflow:
 /**

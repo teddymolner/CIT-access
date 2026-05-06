@@ -152,27 +152,27 @@ pred validEquivClasses[start: Room, t: AccessTime] {
     }*/
     all r: Room | {
         r in EquivClasses.security <=> {
-            reachableWithAccessLevel[Sciences_Park, r, t, Security]
-            not reachableWithAccessLevel[Sciences_Park, r, t, Prof]
+            reachableWithAccessLevel[start, r, t, Security]
+            not reachableWithAccessLevel[start, r, t, Prof]
         }
 
         r in EquivClasses.profAndHigher <=> {
-            reachableWithAccessLevel[Sciences_Park, r, t, Prof]
-            not reachableWithAccessLevel[Sciences_Park, r, t, TA]
+            reachableWithAccessLevel[start, r, t, Prof]
+            not reachableWithAccessLevel[start, r, t, TA]
         }
 
         r in EquivClasses.TAandHigher <=> {
-            reachableWithAccessLevel[Sciences_Park, r, t, TA]
-            not reachableWithAccessLevel[Sciences_Park, r, t, Student]
+            reachableWithAccessLevel[start, r, t, TA]
+            not reachableWithAccessLevel[start, r, t, Student]
         }
 
         r in EquivClasses.studentAndHigher <=> {
-            reachableWithAccessLevel[Sciences_Park, r, t, Student]
-            not reachableWithAccessLevel[Sciences_Park, r, t, Public]
+            reachableWithAccessLevel[start, r, t, Student]
+            not reachableWithAccessLevel[start, r, t, Public]
         }
 
         r in EquivClasses.publicAndHigher <=> {
-            reachableWithAccessLevel[Sciences_Park, r, t, Public]
+            reachableWithAccessLevel[start, r, t, Public]
         }
     }
     //In each equivalence class, all rooms cannot be accessed by a lower level
@@ -185,15 +185,30 @@ pred validEquivClasses[start: Room, t: AccessTime] {
 // } for exactly 8 Door, 7 Room, 5 Int
 
 // equivalence classes from sciences_park on business hours
-run {
-    validEquivClasses[Sciences_Park, BusinessHours]
-} for exactly 39 Door, 31 Room, 5 Int
+// run {
+//     validEquivClasses[Sciences_Park, BusinessHours]
+// } for exactly 41 Door, 31 Room, 5 Int
 
 
-// equivalence classes from sciences_park on weekday off hours
+// // equivalence classes from sciences_park on weekday off hours
+// run {
+//     validEquivClasses[Sciences_Park, OffHoursWeekday]
+// } for exactly 41 Door, 31 Room, 5 Int
+
+// equivalence classes from first floor lobby on weekday off hours
+// run {
+//     validEquivClasses[Lobby_F1, OffHoursWeekday]
+// } for exactly 41 Door, 31 Room, 5 Int // < 1 min
+
+// following workflow: traces to show how a member of public could get to room 
+// run {
+//     traces[Lobby_F1, Room271, OffHoursWeekday, Public]
+// } for exactly 41 Door, 31 Room, 5 Int
+
+// equivalence classes from 3rd floor lobby on weekday off hours
 run {
-    validEquivClasses[Sciences_Park, OffHoursWeekday]
-} for exactly 39 Door, 31 Room, 5 Int
+    validEquivClasses[Lobby_F3, OffHoursWeekday]
+} for exactly 41 Door, 31 Room, 5 Int
 
 // Workflow:
 /**
@@ -201,4 +216,6 @@ run {
 - If this reveals information about access that we want to investigate more, write a custom traces statement to show how...
 - an access level can get from a room to another room through discrete steps
 - This allows informed decisions about security to be made
+// runs in 30-40 seconds
+// tests take a little over a minute to pass
 **/

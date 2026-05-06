@@ -63,7 +63,7 @@ one sig E_LobbyF2_LobbyF3, E_LobbyF2_LobbyF4, E_LobbyF2_LobbyF5 extends Transpor
 one sig E_LobbyF3_LobbyF4, E_LobbyF3_LobbyF5 extends Transport {}
 one sig E_LobbyF4_LobbyF5 extends Transport {}
 
-one sig S_LobbyF1_LobbyF2, S_LobbyF2_LobbyF3, S_LobbyF3_LobbyF4, S_LobbyF4_LobbyF5 extends Transport {}
+one sig S_LobbyF1_LobbyF2, S_LobbyF2_LobbyF3, S_LobbyF3_LobbyF4, S_LobbyF4_LobbyF5, M_LobbyF3_LobbyF4, M_LobbyF4_LobbyF5 extends Transport {}
 
 pred publicAlways[d: Door] {
     d.accessible[BusinessHours] = Public
@@ -259,4 +259,15 @@ pred buildMap {
     S_LobbyF4_LobbyF5.from = Lobby_F4
     S_LobbyF4_LobbyF5.to = Lobby_F5
     swipeAccess[S_LobbyF4_LobbyF5]
+
+    // *** Middle of floor stairs *** //
+    M_LobbyF3_LobbyF4.kind = Stairs
+    M_LobbyF3_LobbyF4.from = Lobby_F3
+    M_LobbyF3_LobbyF4.to = Lobby_F4
+    publicAlways[M_LobbyF3_LobbyF4]
+
+    M_LobbyF4_LobbyF5.kind = Stairs
+    M_LobbyF4_LobbyF5.from = Lobby_F4
+    M_LobbyF4_LobbyF5.to = Lobby_F5
+    publicAlways[M_LobbyF4_LobbyF5]
 }
